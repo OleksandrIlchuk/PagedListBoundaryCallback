@@ -3,8 +3,8 @@
 buildscript {
     ext {
         // App version
-        versionName = "1.0.0" // X.Y.Z; X = Major, Y = minor, Z = Patch level
-        versionCode = 1000 // XYZZM
+        versionName = "1.0.3" // X.Y.Z; X = Major, Y = minor, Z = Patch level
+        versionCode = 1003 // XYZZ
 
         // SDK and tools
         compileSdkVersion = 28
@@ -30,7 +30,6 @@ buildscript {
     repositories {
         google()
         jcenter()
-        mavenCentral()
     }
 }
 
@@ -38,7 +37,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        mavenCentral()
     }
 }
 
