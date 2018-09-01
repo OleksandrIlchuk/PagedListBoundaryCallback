@@ -34,17 +34,17 @@ abstract class BoundaryCallback<RequestType, ResultType>(private val executor: E
         networkState.postValue(NetworkState.LOADING)
         val apiResponse = createCall(itemAtEnd)
 
-        val observer = object : Observer<Response<ResultType>> {
-            override fun onChanged(response: Response<ResultType>?) {
+        val observer = object : Observer<ResultType> {
+            override fun onChanged(response: ResultType?) {
                 apiResponse.removeObserver(this)
 
-                if (response!!.isSuccessful()) {
+                if (isSuccessful(response)) {
                     retry = null
                     networkState.postValue(NetworkState.SUCCESS)
                     saveCallResult(processResponse(response))
                 } else {
                     retry = Runnable { fetchFromNetwork(isInitial, itemAtEnd) }
-                    networkState.postValue(NetworkState.ERROR(response.errorMessage!!))
+                    networkState.postValue(NetworkState.ERROR(getErrorMessage(response)))
                 }
             }
         }
@@ -52,15 +52,21 @@ abstract class BoundaryCallback<RequestType, ResultType>(private val executor: E
         apiResponse.observeForever(observer)
     }
 
-    protected open fun processResponse(response: Response<ResultType>): ResultType {
-        return response.body!!
+    protected open fun getErrorMessage(response: ResultType?): String {
+        return "Error"
+    }
+
+    protected abstract fun isSuccessful(response: ResultType?): Boolean
+
+    protected open fun processResponse(response: ResultType?): ResultType {
+        return response!!
     }
 
     @WorkerThread
     protected abstract fun saveCallResult(result: ResultType)
 
     @MainThread
-    protected abstract fun createCall(itemAtEnd: RequestType?): LiveData<Response<ResultType>>
+    protected abstract fun createCall(itemAtEnd: RequestType?): LiveData<ResultType>
 
     fun retryAllFailed() {
         val prevRetry = retry
